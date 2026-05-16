@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Veil Control Center</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+<aside>
+<div class="brand"><div class="logo">V</div><div><h1>Veil</h1><span>Control Center</span></div></div>
+<button class="nav active" data-v="overview">Overview</button>
+<button class="nav" data-v="builder">Server Builder</button>
+<button class="nav" data-v="roles">Roles</button>
+<button class="nav" data-v="embeds">Embeds</button>
+<button class="nav" data-v="products">Products</button>
+<button class="nav" data-v="eldorado">Eldorado Sync</button>
+<button class="nav" data-v="logs">Logs</button>
+<button onclick="saveConfig()" class="save">Save Memory</button>
+<button onclick="loadConfig()">Reload</button>
+</aside>
+<main>
+<header><h2 id="title">Overview</h2><p>Visual Discord bot control dashboard.</p></header>
+
+<section id="overview" class="view active">
+<div class="stats">
+<div><span>Roles</span><b id="sRoles">0</b></div><div><span>Categories</span><b id="sCats">0</b></div><div><span>Channels</span><b id="sCh">0</b></div><div><span>Products</span><b id="sProd">0</b></div><div><span>Embeds</span><b id="sEmb">0</b></div><div><span>Runs</span><b id="sRuns">0</b></div>
+</div>
+<div class="card"><label>Server Name</label><input id="serverName"><label>Bot Status</label><input id="botStatus"><p><code>!setup</code> <code>!synceldorado</code> <code>!postproducts stock</code> <code>!ticketpanel create-ticket</code></p></div>
+</section>
+
+<section id="builder" class="view"><button onclick="addCategory()">Add Category</button><div id="builderBox"></div></section>
+<section id="roles" class="view"><button onclick="addRole()">Add Role</button><div id="rolesBox"></div></section>
+
+<section id="embeds" class="view">
+<div class="split"><div class="card">
+<select id="embedSelect" onchange="loadEmbed()"></select><button onclick="addEmbed()">Add</button><button onclick="deleteEmbed()">Delete</button>
+<label>Title</label><input id="eTitle" oninput="updateEmbed()">
+<label>Description</label><textarea id="eDesc" oninput="updateEmbed()"></textarea>
+<label>Color Number</label><input id="eColor" oninput="updateEmbed()">
+<label>Footer</label><input id="eFooter" oninput="updateEmbed()">
+</div><div class="preview" id="embedPreview"></div></div>
+</section>
+
+<section id="products" class="view"><button onclick="addProduct()">Add Product</button><div id="productsBox" class="products"></div></section>
+
+<section id="eldorado" class="view">
+<div class="card">
+<h3>Eldorado Stock Sync</h3>
+<p>This imports your current Eldorado seller listings into the product memory.</p>
+<p>Put this in <code>.env</code> first:</p>
+<pre>ELDORADO_ID_TOKEN=your_id_token_here</pre>
+<button onclick="syncEldorado()">Sync Eldorado Stock</button>
+<pre id="eldoradoBox">Not synced yet.</pre>
+</div>
+</section>
+
+<section id="logs" class="view"><button onclick="loadLogs()">Refresh</button><div class="split"><pre id="logsBox"></pre><pre id="historyBox"></pre></div></section>
+</main></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

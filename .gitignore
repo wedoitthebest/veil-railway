@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.pyc
+
+logs/
+backups/
+
+data/*
+!data/.gitkeep
+!data/admin_users.json
+!data/banner_config.json
+!data/blacklist.json
+!data/pinned_messages.json
+!data/ticket_cooldowns.json

@@ -1,0 +1,29 @@
+let config=null;
+document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(b.dataset.v).classList.add("active");title.textContent=b.textContent});
+async function api(p,o={}){let r=await fetch(p,o);if(!r.ok)throw Error(await r.text());return r.json()}
+async function loadConfig(){config=await api("/api/config");serverName.value=config.server_name||"";botStatus.value=config.bot_status||"";renderAll();loadStats()}
+function sync(){config.server_name=serverName.value;config.bot_status=botStatus.value}
+async function saveConfig(){sync();await api("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({config})});alert("Saved")}
+async function loadStats(){let s=await api("/api/stats");sRoles.textContent=s.roles;sCats.textContent=s.categories;sCh.textContent=s.channels;sProd.textContent=s.products;sEmb.textContent=s.embeds;sRuns.textContent=s.setup_runs}
+function renderAll(){renderBuilder();renderRoles();renderEmbeds();renderProducts();loadLogs()}
+function addCategory(){let n=prompt("Category name");if(n){config.structure.push({name:n,channels:[]});renderBuilder()}}
+function addChannel(i){let n=prompt("Channel name");if(n){config.structure[i].channels.push({name:n,private:false});renderBuilder()}}
+function delCat(i){config.structure.splice(i,1);renderBuilder()}
+function delCh(i,j){config.structure[i].channels.splice(j,1);renderBuilder()}
+function renderBuilder(){builderBox.innerHTML="";config.structure.forEach((c,i)=>{let d=document.createElement("div");d.className="cat";d.innerHTML=`<input value="${esc(c.name)}" onchange="config.structure[${i}].name=this.value"><button onclick="addChannel(${i})">Add Channel</button><button onclick="delCat(${i})">Delete Category</button><div></div>`;let inner=d.querySelector("div");c.channels.forEach((ch,j)=>{let r=document.createElement("div");r.className="channel";r.innerHTML=`<input value="${esc(ch.name)}" onchange="config.structure[${i}].channels[${j}].name=this.value"><label><input type="checkbox" ${ch.private?"checked":""} onchange="config.structure[${i}].channels[${j}].private=this.checked"> Private</label><button onclick="delCh(${i},${j})">Delete</button>`;inner.appendChild(r)});builderBox.appendChild(d)})}
+function addRole(){config.roles.push({name:"New Role",color:"#7c3cff",hoist:false});renderRoles()}
+function delRole(i){config.roles.splice(i,1);renderRoles()}
+function renderRoles(){rolesBox.innerHTML="";config.roles.forEach((r,i)=>{let d=document.createElement("div");d.className="role";d.innerHTML=`<input value="${esc(r.name)}" onchange="config.roles[${i}].name=this.value"><input type="color" value="${r.color||"#7c3cff"}" onchange="config.roles[${i}].color=this.value"><label><input type="checkbox" ${r.hoist?"checked":""} onchange="config.roles[${i}].hoist=this.checked"> Hoist</label><button onclick="delRole(${i})">Delete</button>`;rolesBox.appendChild(d)})}
+function renderEmbeds(){embedSelect.innerHTML="";Object.keys(config.embeds||{}).forEach(k=>embedSelect.innerHTML+=`<option>${esc(k)}</option>`);loadEmbed()}
+function loadEmbed(){let e=(config.embeds||{})[embedSelect.value]||{};eTitle.value=e.title||"";eDesc.value=e.description||"";eColor.value=e.color||8133887;eFooter.value=e.footer||"";showEmbed(e)}
+function updateEmbed(){config.embeds[embedSelect.value]={title:eTitle.value,description:eDesc.value,color:Number(eColor.value)||8133887,footer:eFooter.value};showEmbed(config.embeds[embedSelect.value])}
+function showEmbed(e){embedPreview.innerHTML=`<h3>${esc(e.title||"Title")}</h3><p>${esc(e.description||"Description")}</p><small>${esc(e.footer||"Footer")}</small>`}
+function addEmbed(){let n=prompt("Embed name");if(n){config.embeds[n]={title:n,description:"",color:8133887,footer:""};renderEmbeds();embedSelect.value=n;loadEmbed()}}
+function deleteEmbed(){delete config.embeds[embedSelect.value];renderEmbeds()}
+function addProduct(){config.products.push({name:"New Product",category:"Game Items",price:"0.00",stock:1,delivery:"Manual",description:"",active:true});renderProducts()}
+function delProduct(i){config.products.splice(i,1);renderProducts()}
+function renderProducts(){productsBox.innerHTML="";config.products.forEach((p,i)=>{let d=document.createElement("div");d.className="product";d.innerHTML=`<label>Name</label><input value="${esc(p.name)}" onchange="config.products[${i}].name=this.value"><label>Category</label><input value="${esc(p.category)}" onchange="config.products[${i}].category=this.value"><label>Price</label><input value="${esc(p.price)}" onchange="config.products[${i}].price=this.value"><label>Stock</label><input value="${esc(p.stock)}" onchange="config.products[${i}].stock=this.value"><label>Delivery</label><input value="${esc(p.delivery)}" onchange="config.products[${i}].delivery=this.value"><label>Description</label><textarea onchange="config.products[${i}].description=this.value">${esc(p.description)}</textarea><label><input type="checkbox" ${p.active?"checked":""} onchange="config.products[${i}].active=this.checked"> Active</label><button onclick="delProduct(${i})">Delete</button>`;productsBox.appendChild(d)})}
+async function loadLogs(){let l=await api("/api/logs");logsBox.textContent=l.map(x=>`[${x.created_at}] ${x.level}: ${x.message}`).join("\n");let h=await api("/api/history");historyBox.textContent=h.map(x=>`[${x.created_at}] ${x.guild}: ${x.result}`).join("\n")}
+async function syncEldorado(){eldoradoBox.textContent="Syncing...";try{let r=await api("/api/eldorado/sync",{method:"POST"});eldoradoBox.textContent=JSON.stringify(r,null,2);await loadConfig()}catch(e){eldoradoBox.textContent="Error: "+e.message}}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+loadConfig()
