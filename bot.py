@@ -112,6 +112,15 @@ async def veil_setup_hook():
     bot.veil_loaded_extensions = loaded
     bot.veil_failed_extensions = failed
 
+    # === VEIL SLASH SYNC v46 ===
+    try:
+        synced = await bot.tree.sync()
+        print(f"[SYNC] Synced {len(synced)} slash commands globally.")
+    except Exception as exc:
+        print(f"[SYNC ERROR] {exc}")
+    # === END VEIL SLASH SYNC v46 ===
+
+
 bot.setup_hook = veil_setup_hook
 # === END VEIL FINAL COG LOADER v38 ===
 
