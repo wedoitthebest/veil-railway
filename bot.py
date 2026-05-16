@@ -80,6 +80,7 @@ async def veil_setup_hook():
         "cogs.audit_hardening",
         "cogs.server_setup",
         "cogs.message_polish",
+        "cogs.pinned_messages",
         "cogs.eldorado_stock",
         "cogs.ticket_ops",
         "cogs.ticket_buttons",
